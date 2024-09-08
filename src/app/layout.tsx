@@ -24,7 +24,9 @@ export default function RootLayout(props: RootLayoutProps) {
           "min-h-screen bg-[#E5E8EC] text-sm text-zinc-900"
         )}
       >
+        Header
         {children}
+        Footer
       </body>
     </html>
   );
