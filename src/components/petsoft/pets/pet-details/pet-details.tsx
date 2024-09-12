@@ -20,15 +20,9 @@ export function PetDetails() {
 
   return (
     <section className="flex h-full flex-col">
-      <PetDetailsHeader
-        imageUrl={selectedPet.imageUrl}
-        name={selectedPet.name}
-      />
+      <PetDetailsHeader pet={selectedPet} />
 
-      <PetData
-        ownerName={selectedPet.ownerName}
-        age={selectedPet.age}
-      />
+      <PetData pet={selectedPet} />
 
       <PetNotes
         className="mx-8 mb-9 flex-1"

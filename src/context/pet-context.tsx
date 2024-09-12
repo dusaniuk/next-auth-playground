@@ -8,11 +8,15 @@ import {
   useState,
 } from "react";
 import { Pet } from "~/lib/types";
+import { noop } from "~/lib/utils";
 
 type PetContextType = {
   pets: Pet[];
   searchTerm: string;
   selectedPet: Pet | null;
+  addPet: (pet: Omit<Pet, "id">) => void;
+  editPet: (pet: Pet) => void;
+  checkoutPet: (id: number) => void;
   selectPetById: (id: number) => void;
   searchPet: (searchTerm: string) => void;
 };
@@ -21,8 +25,11 @@ const PetContext = createContext<PetContextType>({
   pets: [],
   searchTerm: "",
   selectedPet: null,
-  searchPet: () => {},
-  selectPetById: () => {},
+  addPet: noop,
+  editPet: noop,
+  checkoutPet: noop,
+  searchPet: noop,
+  selectPetById: noop,
 });
 
 export function usePetContext() {
@@ -30,7 +37,7 @@ export function usePetContext() {
 
   if (!context) {
     throw new Error(
-      "usePetContext must be used within a PetContextProvider"
+      "usePetContext must be used within a PetContextProvider",
     );
   }
 
@@ -42,14 +49,40 @@ export type PetContextProviderProps = PropsWithChildren<{
 }>;
 
 export default function PetContextProvider({
-  pets,
+  pets: petsProp,
   children,
 }: PetContextProviderProps) {
+  const [pets, setPets] = useState<Pet[]>(petsProp);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [selectedPetId, setSelectedPetId] = useState<
     number | null
   >(null);
+
+  const handleAddPet = useCallback(
+    (newPet: Omit<Pet, "id">) => {
+      setPets((prev) => [
+        ...prev,
+        {
+          id: new Date().getTime(),
+          ...newPet,
+        },
+      ]);
+    },
+    [],
+  );
+
+  const handleEditPet = useCallback((pet: Pet) => {
+    setPets((prev) =>
+      prev.map((existingPet) =>
+        existingPet.id === pet.id ? pet : existingPet,
+      ),
+    );
+  }, []);
+
+  const handleCheckoutPet = useCallback((id: number) => {
+    setPets((prev) => prev.filter((pet) => pet.id !== id));
+  }, []);
 
   const handleSelectPetById = useCallback((id: number) => {
     setSelectedPetId(id);
@@ -59,7 +92,7 @@ export default function PetContextProvider({
     (searchTerm: string) => {
       setSearchTerm(searchTerm);
     },
-    []
+    [],
   );
 
   const contextValue = useMemo<PetContextType>(
@@ -68,8 +101,11 @@ export default function PetContextProvider({
       pets: pets.filter((pet) =>
         pet.name
           .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+          .includes(searchTerm.toLowerCase()),
       ),
+      addPet: handleAddPet,
+      editPet: handleEditPet,
+      checkoutPet: handleCheckoutPet,
       selectPetById: handleSelectPetById,
       searchPet: handleSetSearchTerm,
       selectedPet: selectedPetId
@@ -78,12 +114,15 @@ export default function PetContextProvider({
         : null,
     }),
     [
+      handleAddPet,
+      handleCheckoutPet,
+      handleEditPet,
       handleSelectPetById,
       handleSetSearchTerm,
       pets,
       searchTerm,
       selectedPetId,
-    ]
+    ],
   );
 
   return (

@@ -1,21 +1,19 @@
+import { Pet } from "~/lib/types";
 import { cn } from "~/lib/utils";
 
 export type PetDataProps = {
+  pet: Pet;
   className?: string;
-  ownerName: string;
-  age: number;
 };
 
-export function PetData({
-  className,
-  ownerName,
-  age,
-}: PetDataProps) {
+export function PetData({ pet, className }: PetDataProps) {
+  const { ownerName, age } = pet;
+
   return (
     <section
       className={cn(
         "flex justify-around px-5 py-10 text-center",
-        className
+        className,
       )}
     >
       <div>
