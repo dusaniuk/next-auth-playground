@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Pet } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -18,8 +19,8 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { useDialogContext } from "~/context/dialog-context";
-import { usePetContext } from "~/context/pet-context";
-import { Pet } from "~/lib/types";
+import { addPet } from "./add-pet";
+import { editPet } from "./edit-pet";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
@@ -27,9 +28,7 @@ const formSchema = z.object({
     .string()
     .min(2, { message: "Owner name is required" }),
   age: z.number().min(0, { message: "Age is required" }),
-  imageUrl: z
-    .string()
-    .min(2, { message: "Image URL is required" }),
+  imageUrl: z.string(),
   notes: z
     .string()
     .min(2, { message: "Notes are required" }),
@@ -42,7 +41,6 @@ export type PetFormDialogContentProps = {
 export function PetFormDialogContent({
   pet,
 }: PetFormDialogContentProps) {
-  const { addPet, editPet } = usePetContext();
   const { closeDialog } = useDialogContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,14 +54,21 @@ export function PetFormDialogContent({
     resolver: zodResolver(formSchema),
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(
+    data: z.infer<typeof formSchema>,
+  ) {
     if (pet) {
-      editPet({ id: pet.id, ...data });
+      await editPet(pet.id, data);
     } else {
-      addPet(data);
+      await addPet(data);
     }
 
     closeDialog();
+  }
+
+  async function onFoo(formData: FormData) {
+    "use server";
+    console.log(formData);
   }
 
   return (
@@ -75,10 +80,7 @@ export function PetFormDialogContent({
       </DialogHeader>
 
       <Form {...form}>
-        <form
-          className="space-y-4"
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
+        <form action={onFoo} className="space-y-4">
           <FormField
             control={form.control}
             name="name"

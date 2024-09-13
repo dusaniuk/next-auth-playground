@@ -1,4 +1,5 @@
 "use client";
+import { Pet } from "@prisma/client";
 import {
   createContext,
   PropsWithChildren,
@@ -7,7 +8,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Pet } from "~/lib/types";
 import { noop } from "~/lib/utils";
 
 type PetContextType = {
@@ -16,8 +16,8 @@ type PetContextType = {
   selectedPet: Pet | null;
   addPet: (pet: Omit<Pet, "id">) => void;
   editPet: (pet: Pet) => void;
-  checkoutPet: (id: number) => void;
-  selectPetById: (id: number) => void;
+  checkoutPet: (id: Pet["id"]) => void;
+  selectPetById: (id: Pet["id"]) => void;
   searchPet: (searchTerm: string) => void;
 };
 
@@ -56,7 +56,7 @@ export default function PetContextProvider({
   const [searchTerm, setSearchTerm] = useState("");
 
   const [selectedPetId, setSelectedPetId] = useState<
-    number | null
+    Pet["id"] | null
   >(null);
 
   const handleAddPet = useCallback(
@@ -64,7 +64,7 @@ export default function PetContextProvider({
       setPets((prev) => [
         ...prev,
         {
-          id: new Date().getTime(),
+          id: new Date().toISOString(),
           ...newPet,
         },
       ]);
@@ -80,13 +80,16 @@ export default function PetContextProvider({
     );
   }, []);
 
-  const handleCheckoutPet = useCallback((id: number) => {
+  const handleCheckoutPet = useCallback((id: Pet["id"]) => {
     setPets((prev) => prev.filter((pet) => pet.id !== id));
   }, []);
 
-  const handleSelectPetById = useCallback((id: number) => {
-    setSelectedPetId(id);
-  }, []);
+  const handleSelectPetById = useCallback(
+    (id: Pet["id"]) => {
+      setSelectedPetId(id);
+    },
+    [],
+  );
 
   const handleSetSearchTerm = useCallback(
     (searchTerm: string) => {

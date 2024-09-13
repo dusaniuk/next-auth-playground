@@ -1,8 +1,8 @@
+import { Pet } from "@prisma/client";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import { useDialogContext } from "~/context/dialog-context";
 import { usePetContext } from "~/context/pet-context";
-import { Pet } from "~/lib/types";
 import { cn } from "~/lib/utils";
 import { PetFormDialogContent } from "../pet-form-dialog-content";
 

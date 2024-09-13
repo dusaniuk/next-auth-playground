@@ -1,4 +1,4 @@
-import { Pet } from "~/lib/types";
+import { Pet } from "@prisma/client";
 import { cn } from "~/lib/utils";
 
 export type PetDataProps = {

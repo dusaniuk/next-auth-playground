@@ -2,16 +2,16 @@ import { PropsWithChildren } from "react";
 import { BackgroundPattern } from "~/components/petsoft/layout/background-pattern";
 import { Footer } from "~/components/petsoft/layout/footer";
 import { Header } from "~/components/petsoft/layout/header";
-import { getPets } from "~/components/petsoft/pets/get-pets";
 import DialogContextProvider from "~/context/dialog-context";
 import PetContextProvider from "~/context/pet-context";
+import { prisma } from "~/lib/db";
 
 type AppLayoutProps = PropsWithChildren<never>;
 
 export default async function AppLayout({
   children,
 }: AppLayoutProps) {
-  const pets = await getPets();
+  const pets = await prisma.pet.findMany();
 
   return (
     <>
